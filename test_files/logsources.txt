@@ -1,0 +1,19 @@
+Video capture sources:
+0 AVerMedia CD311 HD Capture
+1 AVerMedia CD311 HD Capture
+2 AVerMedia CD311 HD Capture
+3 AVerMedia CD311 HD Capture
+4 screen-capture-recorder
+5 XR5R931 video capture board
+6 XR5R931 video capture board
+7 XR5R931 video capture board
+8 XR5R931 video capture board
+9 0:AVerMedia CD311 PCIe HD Capture Device SN:2029999000070
+10 1:AVerMedia CD311 PCIe HD Capture Device SN:2028105000751
+11 2:AVerMedia CD311 PCIe HD Capture Device SN:2028105000882
+12 3:AVerMedia CD311 PCIe HD Capture Device SN:2014671000933
+Video crossbars:
+0 AVerMedia CD311 HD Xbar
+1 AVerMedia CD311 HD Xbar
+2 AVerMedia CD311 HD Xbar
+3 AVerMedia CD311 HD Xbar
