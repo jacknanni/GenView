@@ -2,16 +2,14 @@ from os import getcwd
 from os.path import join
 from GenView.classes import Source, Layout
 
-
+# computing sources.ini and layouts.txt path
 sources_ini_path = join(getcwd(), 'test_files', 'sources.ini')
-sources = Source.decode_sources(sources_ini_path)
+layouts_txt_path = join(getcwd(), 'test_files', 'layouts.txt')
 
-print(sources)
-for source in sources:
-    print(source.Ratio)
+# creating a list of source instances from the sources.ini file
+sources = Source.decode_sources(sources_ini_path=sources_ini_path)
 
-layouts_ini_path = join(getcwd(), 'test_files', 'template.ini')
-
-
-layouts = Layout.decode_layouts(layouts_ini_path, sources)
+# creating a list of layout instances from the layouts.ini file
+layouts = Layout.decode_layouts(layouts_txt_path=layouts_txt_path,
+                                sources=sources)
 print(layouts)

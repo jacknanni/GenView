@@ -40,12 +40,12 @@ class Source(object):
             return '1:1'
 
     @staticmethod
-    def decode_sources(ini_path):
+    def decode_sources(sources_ini_path):
         # pre-allocating sources list
         sources = []
 
         # reading sources.ini file lines
-        with open(ini_path) as f:
+        with open(sources_ini_path) as f:
             lines = f.readlines()
 
         # deleting blank rows
@@ -89,20 +89,31 @@ class Source(object):
 
 
 class Layout(object):
-    def __init__(self,
-                 sources=None):
+    def __init__(self, sources=None):
         self.Sources = sources
 
     def __repr__(self):
-        return "Layout instance with sources '{}'".format(self.Sources)
+        representation = "Layout instance with sources"
+        for index, alias in enumerate(self.Aliases):
+            representation += ' ' + alias
+            if index != len(self.Aliases) - 1:
+                representation += ' +'
+        return representation
+
+    @property
+    def Aliases(self):
+        aliases = []
+        for source in self.Sources:
+            aliases.append(source.Alias)
+        return aliases
 
     @staticmethod
-    def decode_layouts(ini_path, sources_list):
-        # pre-allocating sources list
+    def decode_layouts(layouts_txt_path, sources):
+        # pre-allocating layouts list
         layouts = []
 
-        # reading template.ini file lines
-        with open(ini_path) as f:
+        # reading layouts.txt file lines
+        with open(layouts_txt_path) as f:
             lines = f.readlines()
 
         for line in lines:
@@ -112,13 +123,22 @@ class Layout(object):
             # removing spaces
             line = line.replace(" ", "")
 
-            #splitting the strings
-            line = line.split('+')
+            # splitting to get aliases
+            aliases = line.split('+')
 
-            #appending the line to var layouts
-            layouts.append(line)
+            # looking for right source instances with aliases
+            current_sources = Layout.get_sources_from_aliases(sources=sources, aliases=aliases)
 
-        #layouts = Layout()
+            # appending current layout instance
+            layouts.append(Layout(sources=current_sources))
+        # at the very end, return the layouts list
         return layouts
 
-    def gen_sources(ini_path, layouts):
+    @staticmethod
+    def get_sources_from_aliases(sources, aliases):
+        output = []
+        for alias in aliases:
+            for source in sources:
+                if source.Alias == alias:
+                    output.append(source)
+        return output
