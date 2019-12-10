@@ -86,3 +86,39 @@ class Source(object):
 
         # at the very end, return sources
         return sources
+
+
+class Layout(object):
+    def __init__(self,
+                 sources=None):
+        self.Sources = sources
+
+    def __repr__(self):
+        return "Layout instance with sources '{}'".format(self.Sources)
+
+    @staticmethod
+    def decode_layouts(ini_path, sources_list):
+        # pre-allocating sources list
+        layouts = []
+
+        # reading template.ini file lines
+        with open(ini_path) as f:
+            lines = f.readlines()
+
+        for line in lines:
+            # removing the \n character:
+            line = line.rstrip()
+
+            # removing spaces
+            line = line.replace(" ", "")
+
+            #splitting the strings
+            line = line.split('+')
+
+            #appending the line to var layouts
+            layouts.append(line)
+
+        #layouts = Layout()
+        return layouts
+
+    def gen_sources(ini_path, layouts):
