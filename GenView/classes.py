@@ -14,7 +14,7 @@ class Source(object):
         self.Censoring = censoring
 
     def __repr__(self):
-        return "Source instance with Alias '{}'".format(self.Alias)
+        return "Source instance with alias '{}'".format(self.Alias)
 
     @property
     def X_Width(self):
@@ -48,37 +48,29 @@ class Source(object):
         with open(ini_path) as f:
             lines = f.readlines()
 
-        # adding a blank space at the end
-        # (this will speed up the decoding algorithm)
-        lines.append('\n')
+        # deleting blank rows
+        # (this will speed up the algorithm)
+        lines = list(filter(lambda x: x != '\n', lines))
 
         # pre-allocating current source
         current_source = None
 
         # main cycle
         for line in lines:
-            # if firs line char is '[' a new source was found
-            if line[0] == '[':
-                # removing the \n character:
-                line = line.rstrip()
+            # removing the \n character:
+            line = line.rstrip()
 
-                # creating a new source instance
+            # if first line char is '[' a new source was found
+            if line[0] == '[':
+                # if current_source is not blank...
+                if current_source is not None:
+                    # ...appending current_source to sources list
+                    sources.append(current_source)
+
+                # creating a new source instance with a brand new alias
                 alias = line.replace('[', '').replace(']', '')
                 current_source = Source(alias=alias)
-            # else if line is blank
-            elif line == '\n':
-                # if current_source is blank as well, nothing happens
-                if current_source is None:
-                    pass
-                else:
-                    # closing this source and storing it
-                    sources.append(current_source)
-                    current_source = None
-            # else:
             else:
-                # removing the \n character:
-                line = line.rstrip()
-
                 # getting current property name & value
                 current_property_name, current_property_value = line.split('=')
                 if current_property_value == 'None':
@@ -86,6 +78,11 @@ class Source(object):
 
                 # storing property value
                 setattr(current_source, current_property_name, current_property_value)
+
+        # at the end of file, if there is a not blank source...
+        if current_source is not None:
+            # ...appending current_source to sources list
+            sources.append(current_source)
 
         # at the very end, return sources
         return sources
