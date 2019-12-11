@@ -68,7 +68,7 @@ class Source(object):
                     sources.append(current_source)
 
                 # creating a new source instance with a brand new alias
-                alias = line.replace('[', '').replace(']', '')
+                alias = line.replace('[', '').replace(']', '').replace(' ', '')
                 current_source = Source(alias=alias)
             else:
                 # getting current property name & value
@@ -89,7 +89,9 @@ class Source(object):
 
 
 class Layout(object):
-    def __init__(self, sources=None):
+    def __init__(self, sources=None, layout_index=None):
+        self.LayoutIndex = layout_index
+
         # pre-allocating properties
         self.Aliases = []
         self.Sources = []
@@ -117,11 +119,18 @@ class Layout(object):
         return "Layout instance with sources '" + self.Name + "'"
 
     @property
+    def n_sources(self):
+        return len(self.Aliases)
+
+    @property
     def Name(self):
-        name = ''
+        if self.LayoutIndex is None:
+            name = ''
+        else:
+            name = '{}: '.format(self.LayoutIndex)
         for index, alias in enumerate(self.Aliases):
             name += alias
-            if index != len(self.Aliases) - 1:
+            if index != self.n_sources - 1:
                 name += ' + '
         return name
 
@@ -150,22 +159,78 @@ class Layout(object):
         text += '\n'
 
         # Censoring
-        text += '[Censoring]\n'
-        for index, value in enumerate(self.Censorings):
-            text += 'Area{}={}\n'.format(index + 1, value)
-        text += '\n'
+        if not all(x is None for x in self.Censorings):
+            text += '[Censoring]\n'
+            for index, value in enumerate(self.Censorings):
+                if value is not None:
+                    text += 'Area{}={}\n'.format(index + 1, value)
+            text += '\n'
 
         # Crossbar
-        text += '[Crossbar]\n'
-        for index, value in enumerate(self.Crossbars):
-            if value is not None:
-                text += 'Input{}={}\n'.format(index + 1, value)
-                text += 'Output{}=0\n'.format(index + 1)
-        text += '\n'
+        if not all(x is None for x in self.Crossbars):
+            text += '[Crossbar]\n'
+            for index, value in enumerate(self.Crossbars):
+                if value is not None:
+                    text += 'Input{}={}\n'.format(index + 1, value)
+                    text += 'Output{}=0\n'.format(index + 1)
+            text += '\n'
 
         # Views
+        text += '[Views]\n'
+        text += 'View='
+        for index in range(1, self.n_sources + 1):
+            text += 'View{}'.format(index)
+            if index == self.n_sources:
+                text += '\n'
+            else:
+                text += ','
+        text += '\n'
 
+        # every View in details
+        for view_index in range(self.n_sources):
+            # [ViewX]
+            text += '[View{}]\n'.format(view_index + 1)
+            text += 'Name=\n'
+            text += 'Locations={}\n'.format(self.n_sources)
+            if self.Layouts[view_index] is not None:
+                text += self.Layouts[view_index] + '\n'
+            for source_index in range(self.n_sources):
+                text += 'Location{}={}\n'.format(source_index + 1, self.Locations[view_index][source_index])
+                if self.Rectangles[source_index] is not None:
+                    text += 'Rectangle{}={}\n'.format(source_index + 1, self.Rectangles[source_index])
+                text += 'Ratio{}={}\n'.format(source_index + 1, self.Ratios[source_index])
+            text += '\n'
+
+        # returning full layout text
         return text
+
+    @property
+    def Locations(self):
+        if self.n_sources == 1:
+            return [[1]]
+        if self.n_sources == 2:
+            # TODO: insert here some smart routine
+            return [[1, 2], [1, 2]]
+        if self.n_sources == 3:
+            # TODO: insert here some smart routine
+            return [[1, 2, 3], [2, 1, 3], [2, 3, 1]]
+        if self.n_sources == 4:
+            # TODO: insert here some smart routine
+            return [[1, 2, 3, 4], [2, 3, 4, 1], [3, 4, 1, 2], [4, 1, 2, 3]]
+
+    @property
+    def Layouts(self):
+        if self.n_sources == 1:
+            return [None]
+        if self.n_sources == 2:
+            # TODO: insert here some smart routine
+            return ['Layout2=1', 'Layout2=1']
+        if self.n_sources == 3:
+            # TODO: insert here some smart routine
+            return ['Layout3=2', 'Layout3=2', 'Layout3=1']
+        if self.n_sources == 4:
+            # TODO: insert here some smart routine
+            return [None]
 
     @staticmethod
     def decode_layouts(layouts_txt_path, sources):
@@ -176,7 +241,11 @@ class Layout(object):
         with open(layouts_txt_path) as f:
             lines = f.readlines()
 
-        for line in lines:
+        # deleting blank rows
+        # (this will speed up the algorithm)
+        lines = list(filter(lambda x: x != '\n', lines))
+
+        for index, line in enumerate(lines):
             # removing the \n character:
             line = line.rstrip()
 
@@ -190,7 +259,7 @@ class Layout(object):
             current_sources = Layout.get_sources_from_aliases(sources=sources, aliases=aliases)
 
             # appending current layout instance
-            layouts.append(Layout(sources=current_sources))
+            layouts.append(Layout(sources=current_sources, layout_index=index + 1))
         # at the very end, return the layouts list
         return layouts
 
