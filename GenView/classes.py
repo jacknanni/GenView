@@ -90,22 +90,82 @@ class Source(object):
 
 class Layout(object):
     def __init__(self, sources=None):
-        self.Sources = sources
+        # pre-allocating properties
+        self.Aliases = []
+        self.Sources = []
+        self.Resolutions = []
+        self.Rectangles = []
+        self.Crossbars = []
+        self.Censorings = []
+        self.X_Widths = []
+        self.Y_Widths = []
+        self.Ratios = []
+
+        # cycling on sources list to fill properties
+        for source in sources:
+            self.Aliases.append(source.Alias)
+            self.Sources.append(source.LogNumber)
+            self.Resolutions.append(source.Resolution)
+            self.Rectangles.append(source.Rectangle)
+            self.Crossbars.append(source.Crossbar)
+            self.Censorings.append(source.Censoring)
+            self.X_Widths.append(source.X_Width)
+            self.Y_Widths.append(source.Y_Width)
+            self.Ratios.append(source.Ratio)
 
     def __repr__(self):
-        representation = "Layout instance with sources"
-        for index, alias in enumerate(self.Aliases):
-            representation += ' ' + alias
-            if index != len(self.Aliases) - 1:
-                representation += ' +'
-        return representation
+        return "Layout instance with sources '" + self.Name + "'"
 
     @property
-    def Aliases(self):
-        aliases = []
-        for source in self.Sources:
-            aliases.append(source.Alias)
-        return aliases
+    def Name(self):
+        name = ''
+        for index, alias in enumerate(self.Aliases):
+            name += alias
+            if index != len(self.Aliases) - 1:
+                name += ' + '
+        return name
+
+    @property
+    def Text(self):
+        # pre-allocating
+        text = ''
+
+        # Info
+        text += '[Info]\n'
+        text += 'Name=' + self.Name + '\n'
+        text += 'AudioSourceName=VoiceMeeter Output\n'
+        text += "BackgroundBitMap='OVX_Background_1280_720_black.jpg'\n"
+        text += '\n'
+
+        # Sources
+        text += '[Sources]\n'
+        for index, value in enumerate(self.Sources):
+            text += 'Area{}={}\n'.format(index + 1, value)
+        text += '\n'
+
+        # Resolutions
+        text += '[Resolutions]\n'
+        for index, value in enumerate(self.Resolutions):
+            text += 'Resolution{}={}\n'.format(index+1, value)
+        text += '\n'
+
+        # Censoring
+        text += '[Censoring]\n'
+        for index, value in enumerate(self.Censorings):
+            text += 'Area{}={}\n'.format(index + 1, value)
+        text += '\n'
+
+        # Crossbar
+        text += '[Crossbar]\n'
+        for index, value in enumerate(self.Crossbars):
+            if value is not None:
+                text += 'Input{}={}\n'.format(index + 1, value)
+                text += 'Output{}=0\n'.format(index + 1)
+        text += '\n'
+
+        # Views
+
+        return text
 
     @staticmethod
     def decode_layouts(layouts_txt_path, sources):

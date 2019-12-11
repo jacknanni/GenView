@@ -12,4 +12,9 @@ sources = Source.decode_sources(sources_ini_path=sources_ini_path)
 # creating a list of layout instances from the layouts.ini file
 layouts = Layout.decode_layouts(layouts_txt_path=layouts_txt_path,
                                 sources=sources)
-print(layouts)
+
+# debugging prints
+for index, layout in enumerate(layouts):
+    print('Layout{}.ini'.format(index + 1))
+    print(layout.Text)
+    print()
