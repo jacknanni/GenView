@@ -1,3 +1,7 @@
+from os import listdir
+from os.path import join
+
+
 class Source(object):
     def __init__(self,
                  alias=None,
@@ -5,13 +9,15 @@ class Source(object):
                  resolution=None,
                  rectangle=None,
                  crossbar=None,
-                 censoring=None):
+                 censoring=None,
+                 grayscale=False):
         self.Alias = alias
         self.LogNumber = log_number
         self.Resolution = resolution
         self.Rectangle = rectangle
         self.Crossbar = crossbar
         self.Censoring = censoring
+        self.Grayscale = grayscale
 
     def __repr__(self):
         return "Source instance with alias '{}'".format(self.Alias)
@@ -99,6 +105,7 @@ class Layout(object):
         self.Rectangles = []
         self.Crossbars = []
         self.Censorings = []
+        self.Grayscales = []
         self.X_Widths = []
         self.Y_Widths = []
         self.Ratios = []
@@ -111,6 +118,7 @@ class Layout(object):
             self.Rectangles.append(source.Rectangle)
             self.Crossbars.append(source.Crossbar)
             self.Censorings.append(source.Censoring)
+            self.Grayscales.append(source.Grayscale)
             self.X_Widths.append(source.X_Width)
             self.Y_Widths.append(source.Y_Width)
             self.Ratios.append(source.Ratio)
@@ -150,6 +158,11 @@ class Layout(object):
         text += '[Sources]\n'
         for index, value in enumerate(self.Sources):
             text += 'Area{}={}\n'.format(index + 1, value)
+
+        # Grayscales
+        for index, value in enumerate(self.Grayscales):
+            if bool(value) is not False:
+                text += 'Grayscale{}={}\n'.format(index+1, 'True')
         text += '\n'
 
         # Resolutions
@@ -271,3 +284,13 @@ class Layout(object):
                 if source.Alias == alias:
                     output.append(source)
         return output
+
+    @staticmethod
+    def layout_finder():
+        file_list = []
+        path_list = []
+        for file in listdir('C:\\OneViewX'):
+            if file.endswith('.ini') and file.startswith('Layout'):
+                file_list.append(file)
+                path_list.append(join('C:\\OneViewX', file))
+        return file_list, path_list
