@@ -83,7 +83,11 @@ class Source(object):
                     current_property_value = None
 
                 # storing property value
-                setattr(current_source, current_property_name, current_property_value)
+                setattr(
+                    current_source,
+                    current_property_name,
+                    current_property_value
+                )
 
         # at the end of file, if there is a not blank source...
         if current_source is not None:
@@ -208,10 +212,19 @@ class Layout(object):
             if self.Layouts[view_index] is not None:
                 text += self.Layouts[view_index] + '\n'
             for source_index in range(self.n_sources):
-                text += 'Location{}={}\n'.format(source_index + 1, self.Locations[view_index][source_index])
+                text += 'Location{}={}\n'.format(
+                    source_index + 1,
+                    self.Locations[view_index][source_index]
+                )
                 if self.Rectangles[source_index] is not None:
-                    text += 'Rectangle{}={}\n'.format(source_index + 1, self.Rectangles[source_index])
-                text += 'Ratio{}={}\n'.format(source_index + 1, self.Ratios[source_index])
+                    text += 'Rectangle{}={}\n'.format(
+                        source_index + 1,
+                        self.Rectangles[source_index]
+                    )
+                text += 'Ratio{}={}\n'.format(
+                    source_index + 1,
+                    self.Ratios[source_index]
+                )
             text += '\n'
 
         # returning full layout text
@@ -269,10 +282,18 @@ class Layout(object):
             aliases = line.split('+')
 
             # looking for right source instances with aliases
-            current_sources = Layout.get_sources_from_aliases(sources=sources, aliases=aliases)
+            current_sources = Layout.get_sources_from_aliases(
+                sources=sources,
+                aliases=aliases
+            )
 
             # appending current layout instance
-            layouts.append(Layout(sources=current_sources, layout_index=index + 1))
+            layouts.append(
+                Layout(
+                    sources=current_sources,
+                    layout_index=index + 1
+                )
+            )
         # at the very end, return the layouts list
         return layouts
 
